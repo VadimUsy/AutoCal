@@ -39,14 +39,21 @@ def authorized():
 
 @main_bp.route('/events')
 def events():
-    return render_template('events.html')
+    events = session.get('events', [])
+    return render_template('events.html', events=events)
 
 @main_bp.route('/add_event', methods=['POST'])
 def add_event():
     data = request.form
     event = {
-        'date': data.get('date'),
-        'description': data.get('description'),
+        'title': data.get('title'),
+        'year': data.get('year'),
+        'month': data.get('month'),
+        'day': data.get('day'),
+        'hour': data.get('hour'),
+        'minute': data.get('minute'),
+        'ampm': data.get('ampm'),
+        'description': data.get('description', ''),  # Default to an empty string if no description is provided
     }
 
     if 'events' not in session:
