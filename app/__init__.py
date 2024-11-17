@@ -43,5 +43,9 @@ google = oauth.register(
     client_secret=app.config['GOOGLE_CLIENT_SECRET'],
     authorize_url='https://accounts.google.com/o/oauth2/auth',
     access_token_url='https://accounts.google.com/o/oauth2/token',
-    client_kwargs={'scope': 'openid email profile https://www.googleapis.com/auth/calendar'}
+    client_kwargs={'scope': 'openid email profile https://www.googleapis.com/auth/calendar'},
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    claims_options={
+        'iss': {'values': ['https://accounts.google.com', 'accounts.google.com']}
+    }
 )

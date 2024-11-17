@@ -1,6 +1,10 @@
+import logging
 from flask import Blueprint, redirect, url_for, session, request, render_template
 from googleapiclient.discovery import build
 from app import oauth
+
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
 
 main_bp = Blueprint('main', __name__)
 
@@ -17,12 +21,20 @@ def login():
 @main_bp.route('/login/authorized')
 def authorized():
     google = oauth.create_client('google')  # Get the Google client dynamically
-    token = google.authorize_access_token()
+    claims_options = {
+        'iss': {'values': ['https://accounts.google.com', 'accounts.google.com']}
+    }
+    token = google.authorize_access_token(claims_options=claims_options)
+    id_token = token.get('id_token')
+    if id_token:
+        nonce = token.get('nonce')
+        claims = google.parse_id_token(token, nonce=nonce, claims_options=claims_options)
+        logging.debug(f"ID Token claims: {claims}")
     if not token:
         return redirect(url_for('main.login'))
 
     session['token'] = token
-    session['user'] = google.get('userinfo').json()
+    session['user'] = google.get('https://www.googleapis.com/oauth2/v3/userinfo').json()
     return redirect(url_for('main.events'))
 
 @main_bp.route('/events')
