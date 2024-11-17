@@ -62,6 +62,11 @@ def add_event():
 
     return redirect(url_for('main.events'))
 
+@main_bp.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('main.login'))
+
 @main_bp.route('/complete')
 def complete():
     if 'events' not in session:
