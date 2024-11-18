@@ -16,7 +16,7 @@ def index():
 def login():
     redirect_uri = url_for('main.authorized', _external=True)
     google = oauth.create_client('google')  # Get the Google client dynamically
-    return google.authorize_redirect(redirect_uri)
+    return google.authorize_redirect(redirect_uri, prompt='consent')
 
 @main_bp.route('/login/authorized')
 def authorized():
