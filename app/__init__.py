@@ -1,12 +1,13 @@
 import os
 import secrets
+import json
 from flask import Flask
 from flask_session import Session
 from authlib.integrations.flask_client import OAuth
-from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+# Load credentials from credentials.json
+with open('credentials.json') as f:
+    credentials = json.load(f)
 
 # Initialize Flask app
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
@@ -21,13 +22,13 @@ os.makedirs(app.config['SESSION_FILE_DIR'], exist_ok=True)
 # Initialize Flask-Session
 Session(app)
 
-# Set Google OAuth credentials from environment variables
-app.config['GOOGLE_CLIENT_ID'] = os.getenv('GOOGLE_CLIENT_ID')
-app.config['GOOGLE_CLIENT_SECRET'] = os.getenv('GOOGLE_CLIENT_SECRET')
+# Set Google OAuth credentials from credentials.json
+app.config['GOOGLE_CLIENT_ID'] = credentials['web']['client_id']
+app.config['GOOGLE_CLIENT_SECRET'] = credentials['web']['client_secret']
 
-# Ensure environment variables are set
+# Ensure credentials are set
 if not app.config['GOOGLE_CLIENT_ID'] or not app.config['GOOGLE_CLIENT_SECRET']:
-    raise ValueError("Google Client ID and Secret must be set in the .env file.")
+    raise ValueError("Google Client ID and Secret must be set in the credentials.json file.")
 
 # Initialize OAuth without registering Google yet
 oauth = OAuth(app)
