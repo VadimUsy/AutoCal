@@ -2,9 +2,16 @@ import logging
 from flask import Blueprint, redirect, url_for, session, request, render_template
 from googleapiclient.discovery import build
 from app import oauth
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
+import datetime
+import os
+import pytz
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
+
+SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
 main_bp = Blueprint('main', __name__)
 
@@ -72,17 +79,47 @@ def complete():
     if 'events' not in session:
         return redirect(url_for('main.events'))
 
-    google = oauth.create_client('google')  # Get the Google client dynamically
     token = session.get('token')
     if not token:
         return redirect(url_for('main.login'))
 
-    service = build('calendar', 'v3', credentials=google.authorize_access_token())
+    creds = Credentials(
+        token=token['access_token'],
+        refresh_token=token.get('refresh_token'),
+        token_uri='https://oauth2.googleapis.com/token',
+        client_id=os.getenv('GOOGLE_CLIENT_ID'),
+        client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
+        scopes=SCOPES
+    )
+
+    if creds.expired and creds.refresh_token:
+        creds.refresh(Request())
+
+    service = build('calendar', 'v3', credentials=creds)
+
+    # Define the local time zone
+    local_tz = pytz.timezone('America/New_York')  # Replace with your local time zone
+
     for event in session['events']:
+        start_datetime = datetime.datetime(
+            int(event['year']),
+            int(event['month']),
+            int(event['day']),
+            int(event['hour']) + (12 if event['ampm'] == 'PM' and int(event['hour']) != 12 else 0),
+            int(event['minute'])
+        )
+
+        # Convert to local time zone
+        start_datetime = local_tz.localize(start_datetime)
+
+        # Calculate end time (1 hour later)
+        end_datetime = start_datetime + datetime.timedelta(hours=1)
+
         event_body = {
-            'summary': event['description'],
-            'start': {'dateTime': event['date']},
-            'end': {'dateTime': event['date']},  # Adjust as needed
+            'summary': event['title'],
+            'description': event['description'],
+            'start': {'dateTime': start_datetime.isoformat(), 'timeZone': str(local_tz)},
+            'end': {'dateTime': end_datetime.isoformat(), 'timeZone': str(local_tz)},
         }
         service.events().insert(calendarId='primary', body=event_body).execute()
 
