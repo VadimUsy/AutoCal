@@ -6,6 +6,7 @@ from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 import datetime
 import os
+import pytz
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -96,22 +97,29 @@ def complete():
 
     service = build('calendar', 'v3', credentials=creds)
 
+    # Define the local time zone
+    local_tz = pytz.timezone('America/New_York')  # Replace with your local time zone
+
     for event in session['events']:
         start_datetime = datetime.datetime(
             int(event['year']),
             int(event['month']),
             int(event['day']),
-            int(event['hour']) + (12 if event['ampm'] == 'PM' else 0),
+            int(event['hour']) + (12 if event['ampm'] == 'PM' and int(event['hour']) != 12 else 0),
             int(event['minute'])
-        ).isoformat()
+        )
 
-        end_datetime = (datetime.datetime.fromisoformat(start_datetime) + datetime.timedelta(hours=1)).isoformat()
+        # Convert to local time zone
+        start_datetime = local_tz.localize(start_datetime)
+
+        # Calculate end time (1 hour later)
+        end_datetime = start_datetime + datetime.timedelta(hours=1)
 
         event_body = {
             'summary': event['title'],
             'description': event['description'],
-            'start': {'dateTime': start_datetime, 'timeZone': 'UTC'},
-            'end': {'dateTime': end_datetime, 'timeZone': 'UTC'},
+            'start': {'dateTime': start_datetime.isoformat(), 'timeZone': str(local_tz)},
+            'end': {'dateTime': end_datetime.isoformat(), 'timeZone': str(local_tz)},
         }
         service.events().insert(calendarId='primary', body=event_body).execute()
 
