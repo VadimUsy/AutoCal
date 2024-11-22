@@ -26,18 +26,25 @@ Session(app)
 app.config['GOOGLE_CLIENT_ID'] = credentials['web']['client_id']
 app.config['GOOGLE_CLIENT_SECRET'] = credentials['web']['client_secret']
 
+# Set Microsoft OAuth credentials from credentials.json
+app.config['MICROSOFT_CLIENT_ID'] = credentials['microsoft']['client_id']
+app.config['MICROSOFT_CLIENT_SECRET'] = credentials['microsoft']['client_secret']
+app.config['MICROSOFT_TENANT_ID'] = credentials['microsoft']['tenant_id']
+
 # Ensure credentials are set
 if not app.config['GOOGLE_CLIENT_ID'] or not app.config['GOOGLE_CLIENT_SECRET']:
     raise ValueError("Google Client ID and Secret must be set in the credentials.json file.")
+if not app.config['MICROSOFT_CLIENT_ID'] or not app.config['MICROSOFT_CLIENT_SECRET'] or not app.config['MICROSOFT_TENANT_ID']:
+    raise ValueError("Microsoft Client ID, Secret, and Tenant ID must be set in the credentials.json file.")
 
-# Initialize OAuth without registering Google yet
+# Initialize OAuth without registering providers yet
 oauth = OAuth(app)
 
-# Import routes and initialize `google` after app initialization
+# Import routes and initialize providers after app initialization
 from .routes import main_bp
 app.register_blueprint(main_bp)
 
-# Register Google OAuth after app and routes are ready
+# Register Google OAuth
 google = oauth.register(
     name='google',
     client_id=app.config['GOOGLE_CLIENT_ID'],
@@ -49,4 +56,15 @@ google = oauth.register(
     claims_options={
         'iss': {'values': ['https://accounts.google.com', 'accounts.google.com']}
     }
+)
+
+# Register Microsoft OAuth
+microsoft = oauth.register(
+    name='microsoft',
+    client_id=app.config['MICROSOFT_CLIENT_ID'],
+    client_secret=app.config['MICROSOFT_CLIENT_SECRET'],
+    authorize_url=f'https://login.microsoftonline.com/{app.config["MICROSOFT_TENANT_ID"]}/oauth2/v2.0/authorize',
+    access_token_url=f'https://login.microsoftonline.com/{app.config["MICROSOFT_TENANT_ID"]}/oauth2/v2.0/token',
+    client_kwargs={'scope': 'openid email profile https://graph.microsoft.com/Calendars.ReadWrite'},
+    server_metadata_url=f'https://login.microsoftonline.com/{app.config["MICROSOFT_TENANT_ID"]}/v2.0/.well-known/openid-configuration'
 )
