@@ -74,6 +74,17 @@ def logout():
     session.clear()
     return redirect(url_for('main.login'))
 
+@main_bp.route('/remove_events', methods=['POST'])
+def remove_events():
+    remove_indices = request.form.getlist('remove_events')
+    if 'events' in session:
+        events = session['events']
+        for index in sorted(map(int, remove_indices), reverse=True):
+            if 0 <= index < len(events):
+                events.pop(index)
+        session['events'] = events
+    return redirect(url_for('main.events'))
+
 @main_bp.route('/complete')
 def complete():
     if 'events' not in session:
