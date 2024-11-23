@@ -25,7 +25,7 @@ def login():
     google = oauth.create_client('google')  # Get the Google client dynamically
     return google.authorize_redirect(redirect_uri, prompt='consent')
 
-@main_bp.route('/login/authorized')
+@main_bp.route('/login/google/authorized')
 def authorized():
     google = oauth.create_client('google')  # Get the Google client dynamically
     claims_options = {
