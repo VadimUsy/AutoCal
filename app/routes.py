@@ -15,7 +15,7 @@ import webbrowser
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 
-SCOPES = ["https://www.googleapis.com/auth/calendar"]
+SCOPES = ["https://www.googleapis.com/auth/calendar", "https://graph.microsoft.com/Calendars.ReadWrite"]
 GRAPH_API_ENDPOINT = 'https://graph.microsoft.com/v1.0'
 
 main_bp = Blueprint('main', __name__)
