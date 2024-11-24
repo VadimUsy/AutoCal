@@ -1,5 +1,6 @@
 import logging
 from flask import Blueprint, redirect, url_for, session, request, render_template
+from authlib.integrations.flask_client import OAuthError
 from googleapiclient.discovery import build
 from app import oauth
 from google.oauth2.credentials import Credentials
@@ -31,7 +32,12 @@ def authorized():
     claims_options = {
         'iss': {'values': ['https://accounts.google.com', 'accounts.google.com']}
     }
-    token = google.authorize_access_token(claims_options=claims_options)
+    try:
+        token = google.authorize_access_token(claims_options=claims_options)
+    except OAuthError as e:
+        logging.error(f"OAuthError: {e.error} - {e.description}")
+        return redirect(url_for('main.login'))
+
     id_token = token.get('id_token')
     if id_token:
         nonce = token.get('nonce')
