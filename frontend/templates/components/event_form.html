@@ -1,0 +1,43 @@
+<!-- Event Form Component -->
+<form action="{{ url_for('api.add_event') }}" method="post" class="space-y-4">
+    <!-- Event Title -->
+    <div>
+        <label for="title" class="block text-sm text-gray-400">Event Title</label>
+        <input type="text" name="title" id="title" placeholder="Enter event title" required
+               class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500">
+    </div>
+    
+    <!-- Event Date and Time -->
+    <div>
+        <label class="block text-sm text-gray-400">Date & Time</label>
+        <div class="grid grid-cols-6 gap-4 mt-2">
+            <input type="number" name="year" id="year" placeholder="YYYY" required
+                   class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500">
+            <input type="number" name="month" id="month" placeholder="MM" required
+                   class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500">
+            <input type="number" name="day" id="day" placeholder="DD" required
+                   class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500">
+            <input type="number" name="hour" id="hour" placeholder="HH" required
+                   class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500">
+            <input type="number" name="minute" id="minute" placeholder="MM" required
+                   class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500">
+            <select name="ampm" id="ampm" required
+                    class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500">
+                <option value="AM">AM</option>
+                <option value="PM">PM</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- Event Description -->
+    <div>
+        <label for="description" class="block text-sm text-gray-400">Description</label>
+        <textarea name="description" id="description" rows="3" placeholder="Optional details"
+                  class="w-full px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none"></textarea>
+    </div>
+    
+    <!-- Add Event Button -->
+    <button type="submit" class="action-btn w-full py-3 rounded-lg">
+        Add Event
+    </button>
+</form>

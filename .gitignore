@@ -1,4 +1,29 @@
+# Environment
 .env
+venv/
+env/
+
+# Session files
 flask_session/
+
+# Python cache
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Credentials
 credentials.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Old code (during migration)
+appold/

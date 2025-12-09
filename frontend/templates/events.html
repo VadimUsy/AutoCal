@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoCal - Event Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="logo">AutoCal</h1>
+            <button id="logoutBtn" data-url="{{ url_for('auth.logout') }}" class="btn btn-ghost">
+                Logout
+            </button>
+        </header>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Event List Sidebar -->
+            <aside class="glass-card">
+                <h2 class="section-title">📋 Your Events</h2>
+                
+                <form id="removeEventsForm" action="{{ url_for('api.remove_events') }}" method="post">
+                    <div class="event-list">
+                        {% if events %}
+                            {% for event in events %}
+                            <div class="event-item">
+                                <input type="checkbox" name="remove_events" value="{{ loop.index0 }}" id="event-{{ loop.index0 }}">
+                                <label for="event-{{ loop.index0 }}" class="event-details">
+                                    <div class="event-title">{{ event.title }}</div>
+                                    <div class="event-time">
+                                        {{ event.month }}/{{ event.day }}/{{ event.year }} • {{ event.hour }}:{{ '%02d' % event.minute }} {{ event.ampm }}
+                                    </div>
+                                </label>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📭</div>
+                                <p>No events yet.<br>Start by creating one!</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if events %}
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-danger btn-block">
+                            🗑️ Remove Selected
+                        </button>
+                    </div>
+                    {% endif %}
+                </form>
+            </aside>
+
+            <!-- Event Form -->
+            <main class="glass-card">
+                <h2 class="section-title">✨ Create Event</h2>
+                
+                <form id="eventForm" action="{{ url_for('api.add_event') }}" method="post">
+                    <!-- Event Title -->
+                    <div class="form-group">
+                        <label for="title" class="form-label">Event Title</label>
+                        <input 
+                            type="text" 
+                            id="title" 
+                            name="title" 
+                            class="form-input" 
+                            placeholder="Enter event title"
+                            required
+                            autofocus>
+                    </div>
+
+                    <!-- Date & Time -->
+                    <div class="form-group">
+                        <label class="form-label">Date & Time</label>
+                        <div class="datetime-grid">
+                            <input 
+                                type="number" 
+                                id="year" 
+                                name="year" 
+                                class="form-input" 
+                                placeholder="YYYY"
+                                min="2000"
+                                max="2100"
+                                required>
+                            <input 
+                                type="number" 
+                                id="month" 
+                                name="month" 
+                                class="form-input" 
+                                placeholder="MM"
+                                min="1"
+                                max="12"
+                                required>
+                            <input 
+                                type="number" 
+                                id="day" 
+                                name="day" 
+                                class="form-input" 
+                                placeholder="DD"
+                                min="1"
+                                max="31"
+                                required>
+                            <input 
+                                type="number" 
+                                id="hour" 
+                                name="hour" 
+                                class="form-input" 
+                                placeholder="HH"
+                                min="1"
+                                max="12"
+                                required>
+                            <input 
+                                type="number" 
+                                id="minute" 
+                                name="minute" 
+                                class="form-input" 
+                                placeholder="MM"
+                                min="0"
+                                max="59"
+                                required>
+                            <select id="ampm" name="ampm" class="form-select" required>
+                                <option value="AM">AM</option>
+                                <option value="PM">PM</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label for="description" class="form-label">Description (Optional)</label>
+                        <textarea 
+                            id="description" 
+                            name="description" 
+                            class="form-textarea" 
+                            placeholder="Add event details..."></textarea>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary btn-block">
+                            ➕ Add Event
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Sync Button -->
+                {% if events %}
+                <div class="btn-group">
+                    <button 
+                        id="syncBtn"
+                        data-url="{{ url_for('api.sync_to_calendar') }}"
+                        class="btn btn-success btn-block">
+                        Sync {{ events|length }} Event{{ 's' if events|length != 1 else '' }} to Calendar
+                    </button>
+                </div>
+                {% endif %}
+            </main>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

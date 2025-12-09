@@ -1,0 +1,24 @@
+<!-- Event List Component -->
+<div class="w-full lg:w-1/3 mb-6 lg:mb-0 pr-0 lg:pr-6">
+    <h2 class="text-xl lg:text-2xl font-bold mb-6">Added Events</h2>
+    <form id="removeEventsForm" action="{{ url_for('api.remove_events') }}" method="post" class="space-y-4">
+        <ul id="dateList" class="space-y-4 p-4 bg-[#0B0C10] rounded-lg shadow-inner h-64 overflow-y-auto">
+            {% if events %}
+                {% for event in events %}
+                    <li class="text-sm flex items-center text-gray-300">
+                        <input type="checkbox" name="remove_events" value="{{ loop.index0 }}" class="mr-3">
+                        <div>
+                            <strong class="text-[#66FCF1]">{{ event.title }}</strong><br>
+                            <span>{{ event.month }}/{{ event.day }}/{{ event.year }} {{ event.hour }}:{{ '%02d' % event.minute }} {{ event.ampm }}</span>
+                        </div>
+                    </li>
+                {% endfor %}
+            {% else %}
+                <li class="text-sm text-gray-400">No events added yet.</li>
+            {% endif %}
+        </ul>
+        <button type="submit" class="mt-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-800">
+            Remove Selected
+        </button>
+    </form>
+</div>
